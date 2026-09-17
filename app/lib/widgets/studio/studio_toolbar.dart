@@ -306,7 +306,7 @@ class _StudioToolbarState extends State<StudioToolbar> {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      constraints: const BoxConstraints(maxWidth: 1000),
       decoration: BoxDecoration(
         color: const Color(0xFF2C3E50).withValues(alpha: 0.96),
         borderRadius: BorderRadius.circular(36),
@@ -319,9 +319,15 @@ class _StudioToolbarState extends State<StudioToolbar> {
           ),
         ],
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(36),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
           // 1. Hand / Select Tool
           _toolButton(
             icon: Icons.pan_tool_alt_outlined,
@@ -523,6 +529,8 @@ class _StudioToolbarState extends State<StudioToolbar> {
             onPressed: () => setState(() => _isCollapsed = true),
           ),
         ],
+      ),
+        ),
       ),
     );
   }

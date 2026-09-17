@@ -216,32 +216,40 @@ class _InteractiveCanvasState extends State<InteractiveCanvas> {
 
   @override
   Widget build(BuildContext context) {
+    final double totalCanvasWidth = widget.isDoubleSpread ? (pageWidth * 2 + 20) : pageWidth;
+    final double totalCanvasHeight = pageHeight;
+
     return GestureDetector(
       onTap: _deselectAll,
       child: Container(
         color: const Color(0xFFF3F0E6), // Studio desk warm cream/wood background
-        child: Center(
-          child: InteractiveViewer(
-            transformationController: _transformController,
-            minScale: 0.25,
-            maxScale: 10.0, // 1000% zoom capability!
-            panEnabled: !_isDrawingTool,
-            scaleEnabled: true,
-            boundaryMargin: const EdgeInsets.all(500),
-            child: Center(
-              child: widget.isDoubleSpread
-                  ? Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _buildSinglePageContainer(widget.page, isLeftSpread: true),
-                        const SizedBox(width: 10),
-                        if (widget.secondPage != null)
-                          _buildSinglePageContainer(widget.secondPage!, isLeftSpread: false),
-                      ],
-                    )
-                  : _buildSinglePageContainer(widget.page),
-            ),
-          ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return InteractiveViewer(
+              transformationController: _transformController,
+              minScale: 0.15,
+              maxScale: 10.0, // 1000% zoom capability!
+              panEnabled: !_isDrawingTool,
+              scaleEnabled: true,
+              constrained: false,
+              boundaryMargin: const EdgeInsets.all(800),
+              child: SizedBox(
+                width: totalCanvasWidth,
+                height: totalCanvasHeight,
+                child: widget.isDoubleSpread
+                    ? Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildSinglePageContainer(widget.page, isLeftSpread: true),
+                          const SizedBox(width: 20),
+                          if (widget.secondPage != null)
+                            _buildSinglePageContainer(widget.secondPage!, isLeftSpread: false),
+                        ],
+                      )
+                    : _buildSinglePageContainer(widget.page),
+              ),
+            );
+          },
         ),
       ),
     );

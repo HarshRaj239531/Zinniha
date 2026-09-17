@@ -245,64 +245,74 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
       return j.title.toLowerCase().contains(_searchQuery);
     }).toList();
 
+    final isNarrow = MediaQuery.of(context).size.width < 600;
+    final hPadding = isNarrow ? 16.0 : 40.0;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF7F5EE), // Studio warm neutral
-      body: CustomScrollView(
-        slivers: [
-          // 1. Studio Header App Bar
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(40, 48, 40, 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            // 1. Studio Header App Bar
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(hPadding, 16, hPadding, 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                'Zinnia Studio',
-                                style: GoogleFonts.playfairDisplay(
-                                  fontSize: 34,
-                                  fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF2C3E50),
-                                ),
-                              ),
-                              const SizedBox(width: 14),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: [Color(0xFF2A9D8F), Color(0xFF52B788)],
-                                  ),
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Text(
-                                  'FREE & UNLOCKED',
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 11,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: 12,
+                              runSpacing: 6,
+                              children: [
+                                Text(
+                                  'Zinnia Studio',
+                                  style: GoogleFonts.playfairDisplay(
+                                    fontSize: 34,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                    letterSpacing: 1.0,
+                                    color: const Color(0xFF2C3E50),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            'Tactile Digital Journaling, Planning & Art. All templates, washi, and stickers unlocked.',
-                            style: GoogleFonts.outfit(
-                              fontSize: 14,
-                              color: const Color(0xFF7F8C8D),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      colors: [Color(0xFF2A9D8F), Color(0xFF52B788)],
+                                    ),
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: Text(
+                                    'FREE & UNLOCKED',
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      letterSpacing: 1.0,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 6),
+                            Text(
+                              'Tactile Digital Journaling, Planning & Art. All templates, washi, and stickers unlocked.',
+                              style: GoogleFonts.outfit(
+                                fontSize: 14,
+                                color: const Color(0xFF7F8C8D),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
+                      const SizedBox(width: 16),
                       ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF2C3E50),
@@ -375,12 +385,12 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
             )
           else
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(40, 8, 40, 60),
+              padding: EdgeInsets.fromLTRB(hPadding, 8, hPadding, 60),
               sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 36,
-                  mainAxisSpacing: 42,
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 320,
+                  crossAxisSpacing: 28,
+                  mainAxisSpacing: 36,
                   childAspectRatio: 0.72,
                 ),
                 delegate: SliverChildBuilderDelegate(
@@ -394,6 +404,7 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
             ),
         ],
       ),
+        ),
     );
   }
 

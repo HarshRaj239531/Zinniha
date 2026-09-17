@@ -146,9 +146,12 @@ class _PageManagerModalState extends State<PageManagerModal> {
 
   @override
   Widget build(BuildContext context) {
+    final isNarrow = MediaQuery.of(context).size.width < 600;
+    final hPadding = isNarrow ? 16.0 : 28.0;
+
     return Container(
       color: const Color(0xFFF6F4EE),
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+      padding: EdgeInsets.symmetric(horizontal: hPadding, vertical: 18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -156,54 +159,60 @@ class _PageManagerModalState extends State<PageManagerModal> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.journal.title,
-                    style: GoogleFonts.playfairDisplay(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF2C3E50),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.journal.title,
+                      style: GoogleFonts.playfairDisplay(
+                        fontSize: isNarrow ? 20 : 24,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF2C3E50),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                  Text(
-                    'Bird\'s-Eye Page Overview • ${widget.journal.pages.length} Pages',
-                    style: GoogleFonts.outfit(fontSize: 13, color: const Color(0xFF7F8C8D)),
-                  ),
-                ],
+                    Text(
+                      'Bird\'s-Eye Overview • ${widget.journal.pages.length} Pages',
+                      style: GoogleFonts.outfit(fontSize: 12, color: const Color(0xFF7F8C8D)),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF2A9D8F),
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: EdgeInsets.symmetric(horizontal: isNarrow ? 10 : 16, vertical: 10),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    icon: const Icon(Icons.add, size: 18),
-                    label: Text('Add Page', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+                    icon: const Icon(Icons.add, size: 16),
+                    label: Text('Add Page', style: GoogleFonts.outfit(fontSize: isNarrow ? 11 : 13, fontWeight: FontWeight.bold)),
                     onPressed: _showAddPageDialog,
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 4),
                   IconButton(
-                    icon: const Icon(Icons.close, size: 24, color: Color(0xFF2C3E50)),
+                    icon: const Icon(Icons.close, size: 22, color: Color(0xFF2C3E50)),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 18),
 
           // Pages Grid
           Expanded(
             child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                crossAxisSpacing: 20,
-                mainAxisSpacing: 20,
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 180,
+                crossAxisSpacing: 14,
+                mainAxisSpacing: 14,
                 childAspectRatio: 0.72,
               ),
               itemCount: widget.journal.pages.length,
@@ -253,51 +262,45 @@ class _PageManagerModalState extends State<PageManagerModal> {
                           left: 0,
                           right: 0,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.9),
+                              color: Colors.white.withValues(alpha: 0.92),
                               borderRadius: const BorderRadius.vertical(bottom: Radius.circular(10)),
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  'Page ${index + 1}',
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 12,
-                                    fontWeight: isCurrent ? FontWeight.bold : FontWeight.w600,
-                                    color: isCurrent ? const Color(0xFF2A9D8F) : const Color(0xFF2C3E50),
+                                Expanded(
+                                  child: Text(
+                                    'Page ${index + 1}',
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 11,
+                                      fontWeight: isCurrent ? FontWeight.bold : FontWeight.w600,
+                                      color: isCurrent ? const Color(0xFF2A9D8F) : const Color(0xFF2C3E50),
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                                Row(
-                                  children: [
-                                    if (page.elements.isNotEmpty)
-                                      Text(
-                                        '${page.elements.length} items',
-                                        style: GoogleFonts.outfit(fontSize: 10, color: const Color(0xFF6C757D)),
-                                      ),
-                                    const SizedBox(width: 4),
-                                    PopupMenuButton<String>(
-                                      icon: const Icon(Icons.more_vert, size: 16, color: Color(0xFF495057)),
-                                      padding: EdgeInsets.zero,
-                                      constraints: const BoxConstraints(),
-                                      onSelected: (val) {
-                                        if (val == 'dup') _duplicatePage(index);
-                                        if (val == 'del') _deletePage(index);
-                                        if (val == 'left') _movePage(index, index - 1);
-                                        if (val == 'right') _movePage(index, index + 1);
-                                      },
-                                      itemBuilder: (ctx) => [
-                                        const PopupMenuItem(value: 'dup', child: Text('Duplicate')),
-                                        if (index > 0)
-                                          const PopupMenuItem(value: 'left', child: Text('Move Left')),
-                                        if (index < widget.journal.pages.length - 1)
-                                          const PopupMenuItem(value: 'right', child: Text('Move Right')),
-                                        const PopupMenuItem(
-                                          value: 'del',
-                                          child: Text('Delete', style: TextStyle(color: Colors.red)),
-                                        ),
-                                      ],
+                                PopupMenuButton<String>(
+                                  icon: const Icon(Icons.more_vert, size: 16, color: Color(0xFF495057)),
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                  onSelected: (val) {
+                                    if (val == 'dup') _duplicatePage(index);
+                                    if (val == 'del') _deletePage(index);
+                                    if (val == 'left') _movePage(index, index - 1);
+                                    if (val == 'right') _movePage(index, index + 1);
+                                  },
+                                  itemBuilder: (ctx) => [
+                                    const PopupMenuItem(value: 'dup', child: Text('Duplicate')),
+                                    if (index > 0)
+                                      const PopupMenuItem(value: 'left', child: Text('Move Left')),
+                                    if (index < widget.journal.pages.length - 1)
+                                      const PopupMenuItem(value: 'right', child: Text('Move Right')),
+                                    const PopupMenuItem(
+                                      value: 'del',
+                                      child: Text('Delete', style: TextStyle(color: Colors.red)),
                                     ),
                                   ],
                                 ),

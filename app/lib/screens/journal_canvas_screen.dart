@@ -290,23 +290,27 @@ class _JournalCanvasScreenState extends State<JournalCanvasScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF0ECE1), // studio desk wooden warmth
-      body: Stack(
-        children: [
-          // 1. Studio Top App Bar
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 56,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(56),
+        child: Container(
+          color: const Color(0xFFFAF8F5),
+          child: SafeArea(
+            bottom: false,
             child: _buildTopBar(),
           ),
-
-          // 2. Interactive Canvas
-          Positioned(
-            top: 56,
-            left: 0,
-            right: 0,
-            bottom: 50,
+        ),
+      ),
+      bottomNavigationBar: Container(
+        color: const Color(0xFFFAF8F5),
+        child: SafeArea(
+          top: false,
+          child: _buildBottomPageBar(),
+        ),
+      ),
+      body: Stack(
+        children: [
+          // 1. Interactive Canvas filling the central body
+          Positioned.fill(
             child: InteractiveCanvas(
               page: _currentPage,
               secondPage: _secondPage,
@@ -326,20 +330,11 @@ class _JournalCanvasScreenState extends State<JournalCanvasScreen> {
             ),
           ),
 
-          // 3. Bottom Page Flipper Bar
+          // 2. Floating Studio Toolbar (docked near bottom)
           Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 50,
-            child: _buildBottomPageBar(),
-          ),
-
-          // 4. Floating Studio Toolbar (docked near bottom)
-          Positioned(
-            bottom: 60,
-            left: 20,
-            right: 20,
+            bottom: 16,
+            left: 8,
+            right: 8,
             child: Center(
               child: StudioToolbar(
                 activeTool: _activeTool,
@@ -372,20 +367,22 @@ class _JournalCanvasScreenState extends State<JournalCanvasScreen> {
             ),
           ),
 
-          // 5. Sliding Studio Asset Library Drawer
+          // 3. Sliding Studio Asset Library Drawer
           if (_isAssetDrawerOpen)
             Positioned(
               top: 0,
               bottom: 0,
               right: 0,
-              child: AssetLibraryDrawer(
-                onAddElement: (element) {
-                  setState(() {
-                    _currentPage.elements.add(element);
-                  });
-                  _saveChanges();
-                },
-                onClose: () => setState(() => _isAssetDrawerOpen = false),
+              child: SafeArea(
+                child: AssetLibraryDrawer(
+                  onAddElement: (element) {
+                    setState(() {
+                      _currentPage.elements.add(element);
+                    });
+                    _saveChanges();
+                  },
+                  onClose: () => setState(() => _isAssetDrawerOpen = false),
+                ),
               ),
             ),
         ],
@@ -394,8 +391,11 @@ class _JournalCanvasScreenState extends State<JournalCanvasScreen> {
   }
 
   Widget _buildTopBar() {
+    final isNarrow = MediaQuery.of(context).size.width < 600;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      height: 56,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         color: const Color(0xFFFAF8F5),
         border: const Border(bottom: BorderSide(color: Color(0xFFE5DFD5))),
@@ -411,44 +411,57 @@ class _JournalCanvasScreenState extends State<JournalCanvasScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // Left: Back button to Bookshelf & Journal Title
-          Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new, size: 18, color: Color(0xFF2C3E50)),
-                tooltip: 'Return to Bookshelf',
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                widget.journal.title,
-                style: GoogleFonts.playfairDisplay(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFF2C3E50),
+          Expanded(
+            child: Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new, size: 18, color: Color(0xFF2C3E50)),
+                  tooltip: 'Return to Bookshelf',
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
-              ),
-              const SizedBox(width: 10),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF2A9D8F).withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  '100% UNLOCKED',
-                  style: GoogleFonts.outfit(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF2A9D8F),
-                    letterSpacing: 0.8,
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    widget.journal.title,
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF2C3E50),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-              ),
-            ],
+                if (!isNarrow) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2A9D8F).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      '100% UNLOCKED',
+                      style: GoogleFonts.outfit(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF2A9D8F),
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
+
+          const SizedBox(width: 8),
 
           // Right: Double spread toggle & Bookmark
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               // Double page spread mode toggle
               IconButton(
@@ -458,6 +471,8 @@ class _JournalCanvasScreenState extends State<JournalCanvasScreen> {
                   color: _isDoubleSpread ? const Color(0xFFB5838D) : const Color(0xFF6C757D),
                 ),
                 tooltip: _isDoubleSpread ? 'Single Page View' : 'Two-Page Spread View',
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 34, minHeight: 34),
                 onPressed: () {
                   setState(() {
                     _isDoubleSpread = !_isDoubleSpread;
@@ -472,12 +487,15 @@ class _JournalCanvasScreenState extends State<JournalCanvasScreen> {
                   size: 22,
                 ),
                 tooltip: _currentPage.isBookmarked ? 'Bookmarked' : 'Add Bookmark',
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 34, minHeight: 34),
                 onPressed: _toggleBookmark,
               ),
-              const SizedBox(width: 8),
               IconButton(
                 icon: const Icon(Icons.grid_view, size: 20, color: Color(0xFF2C3E50)),
                 tooltip: 'Bird\'s-Eye Page Manager',
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 34, minHeight: 34),
                 onPressed: _openPageManager,
               ),
             ],
@@ -488,8 +506,10 @@ class _JournalCanvasScreenState extends State<JournalCanvasScreen> {
   }
 
   Widget _buildBottomPageBar() {
+    final isCompact = MediaQuery.of(context).size.width < 500;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: isCompact ? 12 : 24),
       decoration: const BoxDecoration(
         color: Color(0xFFFAF8F5),
         border: Border(top: BorderSide(color: Color(0xFFE5DFD5))),
@@ -500,8 +520,11 @@ class _JournalCanvasScreenState extends State<JournalCanvasScreen> {
           // Previous button
           TextButton.icon(
             icon: const Icon(Icons.arrow_back, size: 16),
-            label: const Text('Previous'),
+            label: isCompact ? const SizedBox.shrink() : const Text('Previous'),
             style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               foregroundColor: _currentPageIndex > 0 ? const Color(0xFF2C3E50) : const Color(0xFFADB5BD),
             ),
             onPressed: _currentPageIndex > 0 ? _goToPreviousPage : null,
@@ -511,7 +534,7 @@ class _JournalCanvasScreenState extends State<JournalCanvasScreen> {
           GestureDetector(
             onTap: _openPageManager,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
               decoration: BoxDecoration(
                 color: const Color(0xFFE9E5DC),
                 borderRadius: BorderRadius.circular(16),
@@ -519,7 +542,7 @@ class _JournalCanvasScreenState extends State<JournalCanvasScreen> {
               child: Text(
                 'Page ${_currentPageIndex + 1} of ${widget.journal.pages.length}',
                 style: GoogleFonts.outfit(
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: const Color(0xFF2C3E50),
                 ),
@@ -529,9 +552,12 @@ class _JournalCanvasScreenState extends State<JournalCanvasScreen> {
 
           // Next button
           TextButton.icon(
-            icon: const Text('Next'),
+            icon: isCompact ? const SizedBox.shrink() : const Text('Next'),
             label: const Icon(Icons.arrow_forward, size: 16),
             style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               foregroundColor: const Color(0xFF2C3E50),
             ),
             onPressed: _goToNextPage,
