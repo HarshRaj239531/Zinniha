@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'screens/bookshelf_screen.dart';
+import 'screens/anime_intro_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,7 +31,8 @@ class ZinnihaApp extends StatelessWidget {
           scrolledUnderElevation: 0,
         ),
       ),
-      home: const BookshelfScreen(),
+      home: const AnimeIntroScreen(),
     );
   }
 }
+

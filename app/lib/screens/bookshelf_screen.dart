@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../models/journal_models.dart';
 import '../services/storage_service.dart';
 import '../services/export_service.dart';
+import 'anime_intro_screen.dart';
 import 'journal_canvas_screen.dart';
 
 class BookshelfScreen extends StatefulWidget {
@@ -313,20 +314,46 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF2C3E50),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                          elevation: 3,
-                        ),
-                        icon: const Icon(Icons.add, size: 20),
-                        label: Text(
-                          'New Journal',
-                          style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold),
-                        ),
-                        onPressed: _createNewJournalDialog,
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Tooltip(
+                            message: 'Watch Anime Intro',
+                            child: IconButton.filledTonal(
+                              style: IconButton.styleFrom(
+                                backgroundColor: const Color(0xFFE2B867).withValues(alpha: 0.18),
+                                foregroundColor: const Color(0xFF9E6D17),
+                                padding: const EdgeInsets.all(14),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                              ),
+                              icon: const Icon(Icons.movie_creation_outlined, size: 22),
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                  PageRouteBuilder(
+                                    pageBuilder: (ctx, anim, secAnim) => const AnimeIntroScreen(),
+                                    transitionsBuilder: (ctx, anim, secAnim, child) => FadeTransition(opacity: anim, child: child),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF2C3E50),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                              elevation: 3,
+                            ),
+                            icon: const Icon(Icons.add, size: 20),
+                            label: Text(
+                              'New Journal',
+                              style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold),
+                            ),
+                            onPressed: _createNewJournalDialog,
+                          ),
+                        ],
                       ),
                     ],
                   ),

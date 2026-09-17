@@ -9,7 +9,7 @@ import 'package:app/screens/page_manager_modal.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('App launches and renders Bookshelf on desktop', (WidgetTester tester) async {
+  testWidgets('App launches AnimeIntroScreen with "HARSH RAJ" and transitions to Bookshelf via Skip', (WidgetTester tester) async {
     SharedPreferences.setMockInitialValues({});
     tester.view.physicalSize = const Size(1200, 800);
     tester.view.devicePixelRatio = 1.0;
@@ -17,11 +17,21 @@ void main() {
 
     await tester.pumpWidget(const ZinnihaApp());
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(milliseconds: 200));
+
+    // Verify Harsh Raj flash title card is shown
+    expect(find.text('HARSH RAJ'), findsOneWidget);
+    expect(find.text('P R E S E N T S'), findsOneWidget);
+    expect(find.text('SKIP'), findsOneWidget);
+
+    // Tap SKIP button to jump to BookshelfScreen
+    await tester.tap(find.text('SKIP'));
+    await tester.pumpAndSettle();
 
     expect(find.text('Zinnia Studio'), findsOneWidget);
     expect(find.text('FREE & UNLOCKED'), findsOneWidget);
   });
+
 
   testWidgets('JournalCanvasScreen renders on narrow mobile device (360x640) without any overflow', (WidgetTester tester) async {
     tester.view.physicalSize = const Size(360, 640);
