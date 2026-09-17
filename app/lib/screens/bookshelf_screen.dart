@@ -275,13 +275,14 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
                               runSpacing: 6,
                               children: [
                                 Text(
-                                  'Zinnia Studio',
+                                  'Harsh Studio',
                                   style: GoogleFonts.playfairDisplay(
                                     fontSize: 34,
                                     fontWeight: FontWeight.bold,
                                     color: const Color(0xFF2C3E50),
                                   ),
                                 ),
+
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                   decoration: BoxDecoration(

@@ -28,9 +28,10 @@ void main() {
     await tester.tap(find.text('SKIP'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Zinnia Studio'), findsOneWidget);
+    expect(find.text('Harsh Studio'), findsOneWidget);
     expect(find.text('FREE & UNLOCKED'), findsOneWidget);
   });
+
 
 
   testWidgets('JournalCanvasScreen renders on narrow mobile device (360x640) without any overflow', (WidgetTester tester) async {
