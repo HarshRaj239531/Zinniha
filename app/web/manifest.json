@@ -1,11 +1,11 @@
 {
-    "name": "app",
-    "short_name": "app",
+    "name": "Harsh Studio",
+    "short_name": "Harsh Studio",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Harsh Studio - Creative Digital Journaling & Planning",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
