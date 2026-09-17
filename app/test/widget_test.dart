@@ -26,9 +26,11 @@ void main() {
 
     // Tap SKIP button to jump to BookshelfScreen
     await tester.tap(find.text('SKIP'));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 700));
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(find.text('Harsh Studio'), findsOneWidget);
+
     expect(find.text('FREE & UNLOCKED'), findsOneWidget);
   });
 

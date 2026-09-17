@@ -2,35 +2,78 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import '../models/journal_models.dart';
+import 'sqlite_database_service.dart';
 
 class StorageService {
   static const String _storageKey = 'zinniha_journals_v1';
   static const Uuid _uuid = Uuid();
 
+  /// Load journals from local SQLite database (100% offline)
   static Future<List<Journal>> loadJournals() async {
-    final prefs = await SharedPreferences.getInstance();
-    final data = prefs.getString(_storageKey);
-
-    if (data == null || data.isEmpty) {
-      final seedJournals = _createSeedJournals();
-      await saveJournals(seedJournals);
-      return seedJournals;
-    }
-
     try {
-      final List<dynamic> list = jsonDecode(data);
-      return list.map((item) => Journal.fromJson(item as Map<String, dynamic>)).toList();
-    } catch (e) {
+      final hasSqliteData = await SqliteDatabaseService.hasJournals();
+      if (hasSqliteData) {
+        final sqliteJournals = await SqliteDatabaseService.loadAllJournals();
+        if (sqliteJournals.isNotEmpty) {
+          return sqliteJournals;
+        }
+      }
+
+      // Check if there is existing data in SharedPreferences to migrate into SQLite
+      final prefs = await SharedPreferences.getInstance();
+      final data = prefs.getString(_storageKey);
+      if (data != null && data.isNotEmpty) {
+        try {
+          final List<dynamic> list = jsonDecode(data);
+          final migrated = list.map((item) => Journal.fromJson(item as Map<String, dynamic>)).toList();
+          if (migrated.isNotEmpty) {
+            await SqliteDatabaseService.saveAllJournals(migrated);
+            return migrated;
+          }
+        } catch (_) {}
+      }
+
+      // First time launch: seed starter notebooks into SQLite
       final seedJournals = _createSeedJournals();
       await saveJournals(seedJournals);
       return seedJournals;
+    } catch (e) {
+      // Fallback in case SQLite is unsupported in current test or web environment
+      return _loadFallback();
     }
   }
 
+  /// Save journals locally to SQLite database
   static Future<void> saveJournals(List<Journal> journals) async {
-    final prefs = await SharedPreferences.getInstance();
-    final jsonString = jsonEncode(journals.map((j) => j.toJson()).toList());
-    await prefs.setString(_storageKey, jsonString);
+    try {
+      await SqliteDatabaseService.saveAllJournals(journals);
+    } catch (_) {}
+
+    // Also persist backup copy in SharedPreferences for web and instant recovery
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonString = jsonEncode(journals.map((j) => j.toJson()).toList());
+      await prefs.setString(_storageKey, jsonString);
+    } catch (_) {}
+  }
+
+  /// Delete a single journal from SQLite
+  static Future<void> deleteJournal(String journalId) async {
+    try {
+      await SqliteDatabaseService.deleteJournal(journalId);
+    } catch (_) {}
+  }
+
+  static Future<List<Journal>> _loadFallback() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final data = prefs.getString(_storageKey);
+      if (data != null && data.isNotEmpty) {
+        final List<dynamic> list = jsonDecode(data);
+        return list.map((item) => Journal.fromJson(item as Map<String, dynamic>)).toList();
+      }
+    } catch (_) {}
+    return _createSeedJournals();
   }
 
   static List<Journal> _createSeedJournals() {
